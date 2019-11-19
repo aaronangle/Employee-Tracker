@@ -37,20 +37,19 @@ function start() {
         name: "userInput"
 
     }).then(data => {
-        console.log(data)
         const { userInput } = data;
         switch (userInput) {
             case "View Employees":
                 viewEmployees();
                 break;
             case "Add an Employee":
-                addEmployee();
+                titleList();
                 break;
             case "Remove an Employee":
                 getEmployeesFirst();
                 break;
             case "Add a Role":
-                addRole();
+                roleList();
                 break;
             case "Add a Department":
                 addDepartment();
@@ -70,7 +69,7 @@ function viewEmployees() {
     LEFT JOIN department ON department.id = role.department_id;`
     connection.query(query, function (err, results) {
         results.forEach(element => {
-            console.log(element)
+
             employeeList.push({
                 id: element.id,
                 firstName: element.first_name,
@@ -89,7 +88,7 @@ function viewEmployees() {
     })
 }
 
-async function addEmployee() {
+async function titleList() {
     await connection.query("SELECT title FROM role", function (err, results) {
         results.forEach(element => {
             if (role.indexOf(element.title) === -1) {
@@ -104,9 +103,14 @@ async function addEmployee() {
                 manager.push(element.first_name)
             }
         })
-    });
 
-    await inquirer.prompt([
+    });
+    await addEmployee()
+}
+
+function addEmployee() {
+
+    inquirer.prompt([
         {
             type: "input",
             message: "Employee's first name?",
@@ -139,10 +143,11 @@ async function addEmployee() {
                 const roleID = results[0].id
                 const query = `INSERT INTO employees(first_name, last_name, manager_id, role_id) VALUES('${first}', '${last}', ${managerID}, ${roleID})`
                 connection.query(query, function (err, results) {
-                    viewEmployees();
-                    start();
                     role.length = 0;
                     manager.length = 0;
+                    viewEmployees();
+                    start();
+
                 })
             })
         })
@@ -160,7 +165,7 @@ function getEmployeesFirst() {
     })
 }
 function removeEmployee() {
-    console.log(first)
+
     inquirer.prompt({
         type: "list",
         message: "Which employee would you like to remove?",
@@ -195,13 +200,19 @@ function addDepartment() {
     })
 }
 
-async function addRole() {
-    await connection.query(`SELECT name FROM department`, async function (err, res) {
+
+function roleList() {
+    connection.query(`SELECT name FROM department`, async function (err, res) {
         await res.forEach(element => {
             departments.push(element.name)
         })
+        addRole()
     })
-    await inquirer.prompt([
+
+}
+function addRole() {
+
+    inquirer.prompt([
         {
             type: "input",
             message: "What is the title of the role you are adding?",
