@@ -81,15 +81,15 @@ function viewEmployees() {
         });
         console.table(employeeList)
         setTimeout(() => {
+            start();
 
         }, 1000);
         employeeList.length = 0;
-        start();
     })
 }
 
-async function titleList() {
-    await connection.query("SELECT title FROM role", function (err, results) {
+function titleList() {
+    connection.query("SELECT title FROM role", function (err, results) {
         results.forEach(element => {
             if (role.indexOf(element.title) === -1) {
                 role.push(element.title);
@@ -97,7 +97,7 @@ async function titleList() {
         });
 
     })
-    await connection.query("SELECT * FROM employees", function (err, results) {
+    connection.query("SELECT * FROM employees", function (err, results) {
         results.forEach(element => {
             if (element.manager_id === 0) {
                 manager.push(element.first_name)
@@ -105,7 +105,7 @@ async function titleList() {
         })
 
     });
-    await addEmployee()
+    addEmployee()
 }
 
 function addEmployee() {
@@ -145,7 +145,7 @@ function addEmployee() {
                 connection.query(query, function (err, results) {
                     role.length = 0;
                     manager.length = 0;
-                    viewEmployees();
+
                     start();
 
                 })
@@ -170,16 +170,17 @@ function removeEmployee() {
         type: "list",
         message: "Which employee would you like to remove?",
         choices: first,
-        name: "first"
+        name: "firstname"
     }).then(data => {
-        const { first } = data;
-        connection.connect(`DELETE FROM employees WHERE first_name = '${first}'`, function (err, result) {
-            console.log(first + " was removed")
+        const { firstname } = data;
+        console.log(firstname)
+        connection.query(`DELETE FROM employees WHERE first_name = '${firstname}'`, function (err, result) {
+            console.log(firstname + " was removed")
             setTimeout(() => {
+                start();
 
             }, 1000);
             first.length = 0;
-            start();
         })
     })
 }
@@ -193,9 +194,9 @@ function addDepartment() {
         connection.query(`INSERT INTO department(name) VALUE("${department}")`, function (err, res) {
             console.log(department + " was succesfully added")
             setTimeout(() => {
+                start();
 
             }, 1000);
-            start();
         })
     })
 }
@@ -236,9 +237,9 @@ function addRole() {
             connection.query(`INSERT INTO role(title, salary, department_id) VALUE('${title}', '${salary}', ${department_id})`, function (err, res) {
                 console.log(title + " was succesfully added")
                 setTimeout(() => {
+                    start();
 
                 }, 1000);
-                start();
             })
         })
     })
